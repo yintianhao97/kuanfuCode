@@ -1,0 +1,20 @@
+/**
+  * Copyright 2024 json.cn 
+  */
+package org.jeecg.modules.link.vo;
+
+import lombok.Data;
+
+/**
+ * Auto-generated: 2024-02-02 17:31:13
+ *
+ * @author json.cn (i@json.cn)
+ * @website http://www.json.cn/java2pojo/
+ */
+@Data
+public class Childrenvo {
+    private String ccostobject;
+    private String cinventoryid;
+    private String noutnum;
+
+}
