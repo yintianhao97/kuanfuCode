@@ -41,6 +41,8 @@ public class CaiGouJob {
     private ILinkDingdingListService linkDingdingListService;
     @Autowired
     private IDingtalkUserInfoService dingtalkUserInfoService;
+    @Autowired
+    private IBdCorpService bdCorpService;
 
 
 
@@ -57,9 +59,14 @@ public class CaiGouJob {
         Date time2 = calendar.getTime();
         String houtian = sdf.format(time2);
 
-        List<LinkDingdingList> list1 = linkDingdingListService.list();
+        List<BdCorp> corpList = bdCorpService.getCorpList();
+        for (BdCorp bdCorp : corpList) {
+            String corpPk = bdCorp.getPkCorp();
+
+        /*List<LinkDingdingList> list1 = linkDingdingListService.list();
         for (LinkDingdingList linkDingdingList : list1) {
             String corpPk = linkDingdingList.getCorpPk();
+        */
 
             //查询位同步单据
             List<PoOrder> poOrders = poOrderService.dingSync(corpPk, qiantian, houtian);

@@ -10,7 +10,9 @@ import com.dingtalk.api.request.OapiUserGetRequest;
 import com.dingtalk.api.response.OapiProcessinstanceCreateResponse;
 import com.dingtalk.api.response.OapiUserGetResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.link.entity.*;
+import org.jeecg.modules.link.mapper.BdCalbodyMapper;
 import org.jeecg.modules.link.mapper.PkTranslateCodeMapper;
 import org.jeecg.modules.link.service.*;
 import org.jeecg.modules.link.utils.AccessTokenUtil;
@@ -44,6 +46,10 @@ public class FuKuanJob {
     private ILinkDingdingListService linkDingdingListService;
     @Autowired
     private IDingtalkUserInfoService dingtalkUserInfoService;
+    @Autowired
+    private IBdCorpService bdCorpService;
+    @Autowired
+    private BdCalbodyMapper bdCalbodyMapper;
 
 
 
@@ -60,13 +66,26 @@ public class FuKuanJob {
         Date time2 = calendar.getTime();
         String houtian = sdf.format(time2);
 
-        List<LinkDingdingList> list1 = linkDingdingListService.list();
-        for (LinkDingdingList linkDingdingList : list1) {
-            String corpPk = linkDingdingList.getCorpPk();
+
+        List<BdCorp> corpList = bdCorpService.getCorpList();
+        for (BdCorp bdCorp : corpList) {
+            String corpPk = bdCorp.getPkCorp();
+
+/*            List<BdCalbody> bdCalbodies = bdCalbodyMapper.selectByPkCorp(corpPk);
+            //判断bdCalbodies是否为空
+            if (bdCalbodies == null || bdCalbodies.size() == 0) {
+                log.info();
+                //return Result.error("库存组织不存在,请创建库存组织");
+                continue;
+            }*/
+
+//        List<LinkDingdingList> list1 = linkDingdingListService.list();
+
             List<ArapDjzb> unsyDoc = arapDjzbService.getUnsyDoc(corpPk, qiantian, houtian);
             if (!unsyDoc.isEmpty()){
                 log.info("公司:{}待同步付款单单数量:{}",corpPk,unsyDoc.size());
             }
+
             for (ArapDjzb arapDjzb : unsyDoc) {
                 String dingUserIdByU8Pk = dingtalkUserInfoService.getDingUserIdByU8Pk(arapDjzb.getLrr());
                 //如果dingUserIdByU8Pk为null或空跳出for循环
@@ -95,6 +114,9 @@ public class FuKuanJob {
                 String djrq = arapDjzb.getDjrq();
                 //System.out.println("单据日期"+djrq);
                 String pj_jsfs = arapDjzb.getPjJsfs();
+
+                String zyx1 = arapDjzb.getZyx1();
+
                 String jiesuanfangshi = pkTranslateCodeMapper.jiesuanfangshi(corpPk, pj_jsfs);
                 //System.out.println("结算方式"+jiesuanfangshi);
 
@@ -175,6 +197,11 @@ public class FuKuanJob {
                     formComponentValueVoList.add(danjvhao);
                     danjvhao.setName("单据号");
                     danjvhao.setValue(djbh);
+
+                    OapiProcessinstanceCreateRequest.FormComponentValueVo zhiyouxiang1 = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
+                    formComponentValueVoList.add(zhiyouxiang1);
+                    zhiyouxiang1.setName("收款名称");
+                    zhiyouxiang1.setValue(zyx1);
 
                     OapiProcessinstanceCreateRequest.FormComponentValueVo danjvriqi = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
                     formComponentValueVoList.add(danjvriqi);
@@ -289,16 +316,6 @@ public class FuKuanJob {
                             benbijine.setValue(null);
                         }
 
-
-
-
-
-
-
-
-
-
-
                         List<OapiProcessinstanceCreateRequest.FormComponentValueVo> list =
                                 Arrays.asList(dingdanhao,fapiaohao,zaiyao,bizhong,benbijine);
 
@@ -333,27 +350,17 @@ public class FuKuanJob {
                     log.info(errLog, e);
                     stringServiceResult =  ServiceResult.failure(ServiceResultCode.SYS_ERROR.getErrCode(), ServiceResultCode.SYS_ERROR.getErrMsg());
                 }
-
-
-
                 if(stringServiceResult.isSuccess()) {
                     //审批ID
                     String result = stringServiceResult.getResult();
-
                     fukuanLinkService.delByErpId(arapDjzb.getVouchid());
-
                     fukuanLinkService.save(
                             new FukuanLink().setDingcode(result).setErpcode(arapDjzb.getVouchid()).setState("1").setTlastmaketime(arapDjzb.getTs()).setCorp(dwbm).setErpcode2(djbh)
                     );
-
                     docTypeLinkService.save(
                             new DocTypeLink().setDingcode(result).setErpcode(arapDjzb.getVouchid()).setDoctype("02")
                     );
-
                 }
-
-
-
             }
         }
 

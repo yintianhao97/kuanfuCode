@@ -23,6 +23,7 @@ public interface BdCorpMapper extends BaseMapper<BdCorp> {
     @Select("SELECT * FROM bd_corp WHERE isseal = 'N' and unitcode = #{code}")
     BdCorp getCoprByCode(String code);
 
-
+    @Select("select * from bd_corp where LEN(unitcode) = 7 and dr = 0 and ishasaccount = 'Y' and isseal = 'N' ")
+    List<BdCorp> getCorpList();
 
 }
