@@ -198,10 +198,13 @@ public class FuKuanJob {
                     danjvhao.setName("单据号");
                     danjvhao.setValue(djbh);
 
-                    OapiProcessinstanceCreateRequest.FormComponentValueVo zhiyouxiang1 = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
-                    formComponentValueVoList.add(zhiyouxiang1);
-                    zhiyouxiang1.setName("收款名称");
-                    zhiyouxiang1.setValue(zyx1);
+                    if(zyx1!=null){
+                        OapiProcessinstanceCreateRequest.FormComponentValueVo zhiyouxiang1 = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
+                        formComponentValueVoList.add(zhiyouxiang1);
+                        zhiyouxiang1.setName("收款名称");
+                        zhiyouxiang1.setValue(zyx1);
+                    }
+
 
                     OapiProcessinstanceCreateRequest.FormComponentValueVo danjvriqi = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
                     formComponentValueVoList.add(danjvriqi);
