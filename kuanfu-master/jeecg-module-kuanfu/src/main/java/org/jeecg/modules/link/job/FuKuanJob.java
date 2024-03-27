@@ -58,11 +58,11 @@ public class FuKuanJob {
         //获取前天日期和后天日期yyyy-MM-dd输出
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.DATE, -6);
+        calendar.add(Calendar.DATE, -30);
         Date time = calendar.getTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String qiantian = sdf.format(time);
-        calendar.add(Calendar.DATE, 7);
+        calendar.add(Calendar.DATE, 31);
         Date time2 = calendar.getTime();
         String houtian = sdf.format(time2);
 

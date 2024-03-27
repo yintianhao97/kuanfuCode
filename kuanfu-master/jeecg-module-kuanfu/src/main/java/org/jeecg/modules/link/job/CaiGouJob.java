@@ -51,11 +51,11 @@ public class CaiGouJob {
         //获取前天日期和后天日期yyyy-MM-dd输出
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.DATE, -6);
+        calendar.add(Calendar.DATE, -30);
         Date time = calendar.getTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String qiantian = sdf.format(time);
-        calendar.add(Calendar.DATE, 7);
+        calendar.add(Calendar.DATE, 31);
         Date time2 = calendar.getTime();
         String houtian = sdf.format(time2);
 
@@ -228,15 +228,12 @@ public class CaiGouJob {
 
 
                     //判断备注是否存在
+                    OapiProcessinstanceCreateRequest.FormComponentValueVo beizhu = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
+                    formComponentValueVoList.add(beizhu);
+                    beizhu.setName("备注");
                     if (vmemo!=null){
-                        OapiProcessinstanceCreateRequest.FormComponentValueVo beizhu = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
-                        formComponentValueVoList.add(beizhu);
-                        beizhu.setName("备注");
                         beizhu.setValue(vmemo);
                     }else {
-                        OapiProcessinstanceCreateRequest.FormComponentValueVo beizhu = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
-                        formComponentValueVoList.add(beizhu);
-                        beizhu.setName("备注");
                         beizhu.setValue("U8C未填写");
                     }
 
@@ -329,7 +326,7 @@ public class CaiGouJob {
                         beizhub.setValue(vmemo1);
 
                         List<OapiProcessinstanceCreateRequest.FormComponentValueVo> list =
-                                Arrays.asList(cunhuobianma,cunhuomingcheng,danwei,caigoushuliang,hanshuidanjia,jiashuiheji,shuilv,jihua);
+                                Arrays.asList(cunhuobianma,cunhuomingcheng,danwei,caigoushuliang,hanshuidanjia,jiashuiheji,shuilv,jihua,beizhub);
 
                         //List<OapiProcessinstanceCreateRequest.FormComponentValueVo> list = Collections.singletonList(cunhuobianma)
                         asList.add(list);
