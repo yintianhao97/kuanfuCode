@@ -19,4 +19,5 @@ public class Parentvo {
     private String cwarehouseid;
     private String pk_calbody;
     private String pk_corp;
+    private String dbilldate;
 }

@@ -51,18 +51,18 @@ public class PeiBiChuKuJob {
     @Autowired
     private PkTranslateCodeMapper pkTranslateCodeMapper;
 
-    //@Scheduled(cron = "0 0/5 * * * ? ")
+    @Scheduled(cron = "0 0/5 * * * ? ")
     public void peiBiChuKu() {
         log.info("=====配比出库定时任务开始=====");
         //获取昨天日期和明天日期yyyy-MM-dd输出
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.DATE, -5);
+        calendar.add(Calendar.DATE, -40);
         Date time = calendar.getTime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String zuotian = sdf.format(time);
 
-        calendar.add(Calendar.DATE, 6);
+        calendar.add(Calendar.DATE, 41);
         Date time2 = calendar.getTime();
         String jintian = sdf.format(time2);
 
@@ -121,7 +121,10 @@ public class PeiBiChuKuJob {
                     //收发类别
                     parentvo.setCdispatcherid("0202");
 
+                    parentvo.setDbilldate(vIaInoutledger.getDbilldate());
+
                     generalBillVO.setParentvo(parentvo);
+
 
                    // System.out.println(parentvo);
 

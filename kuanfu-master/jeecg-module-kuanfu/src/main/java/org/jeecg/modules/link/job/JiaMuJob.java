@@ -39,7 +39,8 @@ public class JiaMuJob {
     private PkTranslateCodeMapper pkTranslateCodeMapper;
 
     //@Scheduled(cron = "0 0 2 1 * ? ")
-    @Scheduled(cron = "0 10 0 1 * ? ")
+    //@Scheduled(cron = "0 10 0 1 * ? ")
+    @Scheduled(cron = "0 0 1 * * ? ")
     public void JiaMu() {
         // 获取当前日期
         LocalDate currentDate = LocalDate.now();
