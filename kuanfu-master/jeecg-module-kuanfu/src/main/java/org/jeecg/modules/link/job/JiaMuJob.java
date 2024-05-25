@@ -86,21 +86,24 @@ public class JiaMuJob {
                      * */
 
 //                    String shiyongjiagexiang = pkTranslateCodeMapper.shiyongjiagexiang(corpPk);
-//                    String cny = pkTranslateCodeMapper.getCNY();
+//                    String cny = pkTranslateCodeMapper.getCNwY();
 
                     List<BdInvmandoc> bdInvmandocs = bdInvmandocMapper.selectByPkCorp(corpPk);
                     for (BdInvmandoc bdInvmandoc : bdInvmandocs) {
                         List<IaBillB> iaBillBS = iaBillBMapper.selectByCinvbasid(corpPk, bdInvmandoc.getPkInvbasdoc(), formattedFirstDay, formattedLastDay);
                         if (!iaBillBS.isEmpty()) {
                             IaBillB iaBillB = iaBillBS.get(0);
-                            //System.out.println("存货编码:" + bdInvmandoc.getInvcode() + "价格:" + iaBillB.getNprice());
-                            log.info("存货编码:{}价格:{}",bdInvmandoc.getInvcode(),iaBillB.getNprice());
+
+
                             if (iaBillB.getNprice()!=null){
                                 PrmTariffcurlist prmTariffcurlist = prmTariffcurlistService.selectByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc());
                                 if (prmTariffcurlist != null) {
                                     //System.out.println("已经存在,直接修改数据库");
+                                    log.info("存货编码:{},已经存在直接修改数据库,价格:{}",bdInvmandoc.getInvcode(),iaBillB.getNprice());
+
                                     prmTariffcurlistService.updateByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc(),iaBillB.getNprice().toString());
                                 } else {
+                                    log.info("存货编码:{},调用接口添加价目表,价格:{}",bdInvmandoc.getInvcode(),iaBillB.getNprice());
                                     //System.out.println("不存在,调用接口");
                                     String jiliangdanwei = pkTranslateCodeMapper.jiliangdanwei(bdInvmandoc.getPkMeasdoc());
                                     String json = "{\n" +
@@ -124,6 +127,41 @@ public class JiaMuJob {
                                             "          ]\n" +
                                             "}";
                                     //System.out.println(json);
+                                    log.info(json);
+                                    String tbmimport = this.tbmimport(json);
+                                    //System.out.println(tbmimport);
+                                    log.info("u8c,返回数据:{}",tbmimport);
+                                }
+                            }else if (bdInvmandoc.getCostprice()!=null){
+                                //System.out.println("没有订单存货编码:" + bdInvmandoc.getInvcode() + "价格:" + bdInvmandoc.getCostprice());
+                                log.info("存货编码:{}价格:{}",bdInvmandoc.getInvcode(),bdInvmandoc.getCostprice());
+                                PrmTariffcurlist prmTariffcurlist = prmTariffcurlistService.selectByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc());
+                                if (prmTariffcurlist != null) {
+                                    //System.out.println("已经存在,直接修改数据库");
+                                    prmTariffcurlistService.updateByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc(),bdInvmandoc.getCostprice().toString());
+                                } else {
+                                    //System.out.println("不存在,调用接口");
+                                    String jiliangdanwei = pkTranslateCodeMapper.jiliangdanwei(bdInvmandoc.getPkMeasdoc());
+                                    String json = "{\n" +
+                                            "          \"billvo\":  [\n" +
+                                            "                    {\n" +
+                                            "                              \"childrenvo\":  [\n" +
+                                            "                                        {\n" +
+                                            "                                                  \"cdefpricetypeid\":  \"01\",\n" +
+                                            "                                                  \"cinventoryid\":  \""+bdInvmandoc.getInvcode()+"\",\n" +
+                                            "                                                  \"nprice0\":  \""+bdInvmandoc.getCostprice()+"\",\n" +
+                                            "                                                  \"ccurrencyid\":  \"CNY\",\n" +
+                                            "                                                  \"cmeasdocid\":  \""+jiliangdanwei+"\"\n" +
+                                            "                                        }\n" +
+                                            "                              ],\n" +
+                                            "                              \"parentvo\":  {\n" +
+                                            "                                        \"cpricetariffcode\":  \""+prmTariff.getCpricetariffcode()+"\",\n" +
+                                            "                                        \"cpricetariffname\":  \""+prmTariff.getCpricetariffname()+"\",\n" +
+                                            "                                        \"pk_corp\":  \"0101003\"\n" +
+                                            "                              }\n" +
+                                            "                    }\n" +
+                                            "          ]\n" +
+                                            "}";
                                     log.info(json);
                                     String tbmimport = this.tbmimport(json);
                                     //System.out.println(tbmimport);

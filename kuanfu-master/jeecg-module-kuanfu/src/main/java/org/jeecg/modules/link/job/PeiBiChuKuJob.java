@@ -142,7 +142,8 @@ public class PeiBiChuKuJob {
                         BigDecimal mul = NumberUtil.mul(sl, nnumber);
                         childrenvo.setNoutnum(mul.toString());
                         childrenvos.add(childrenvo);
-                        //System.out.println(bomB);
+
+                        //System.out.println(bomB);'
                     }
 
                     generalBillVO.setChildrenvo(childrenvos);
@@ -204,6 +205,7 @@ public class PeiBiChuKuJob {
         for (Map.Entry<String, Object> entry : headparams.entrySet()) {
             httpPost.setRequestHeader(entry.getKey(), entry.getValue()
                     .toString());
+
         }
         try {
             RequestEntity entity = new StringRequestEntity(json,

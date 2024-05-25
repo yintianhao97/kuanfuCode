@@ -86,7 +86,8 @@ public class CaiGouJob {
 
                 log.info("==========采购订单数据");
                 //获取表头数据
-        /*          业务流程	业务流程	cbiztype
+                /*
+                    业务流程	业务流程	cbiztype
                     采购组织	采购组织	cpurorganization
                     供应商	供应商	cvendorbaseid
                     订单编号	订单编号	vordercode
@@ -95,7 +96,8 @@ public class CaiGouJob {
                     采购部门	采购部门	cdeptid
                     合计数量	合计数量	ntotalnum
                     合计金额	合计金额	ntotalmny
-                    备注	备注	vmemo*/
+                    备注	备注	vmemo
+                    */
 
                 String corderid = poOrder.getCorderid();
                 String xiangmu = pkTranslateCodeMapper.xiangmu(corderid);
@@ -158,7 +160,8 @@ public class CaiGouJob {
                         //跳出本次for循环
                         continue;
                     }
-                    /*if (yewuliucheng.equals("资产采购")){
+                    /*
+                    if (yewuliucheng.equals("资产采购")){
                         OapiProcessinstanceCreateRequest.FormComponentValueVo yewuliuchengVo = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
                         formComponentValueVoList.add(yewuliuchengVo);
                         yewuliuchengVo.setName("业务流程");
@@ -168,7 +171,8 @@ public class CaiGouJob {
                         formComponentValueVoList.add(yewuliuchengVo);
                         yewuliuchengVo.setName("业务流程");
                         yewuliuchengVo.setValue("采购订单");
-                    }*/
+                    }
+                    */
 
 
 
@@ -199,14 +203,11 @@ public class CaiGouJob {
                     caigouriqi.setName("采购日期");
                     caigouriqi.setValue(dorderdate);
 
-
-
                     OapiProcessinstanceCreateRequest.FormComponentValueVo caigouyuan = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
                     formComponentValueVoList.add(caigouyuan);
                     caigouyuan.setName("采购员");
                     caigouyuan.setValue("[\""+renyuandangan+"\"]");
                    // caigouyuan.setValue(renyuandangan);
-
 
                     OapiProcessinstanceCreateRequest.FormComponentValueVo hejishuliang = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
                     formComponentValueVoList.add(hejishuliang);

@@ -2,6 +2,7 @@ package org.jeecg.smallTools;
 
 import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -20,201 +21,214 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = JeecgSystemApplication.class)
 public class JMBTest {
     @Autowired
+    private ILinkPriceListService iLinkPriceListService;
+    @Autowired
     private BdInvmandocMapper bdInvmandocMapper;
     @Autowired
     private IaBillBMapper iaBillBMapper;
-    @Autowired
-    private BomBMapper bomBMapper;
-    @Autowired
-    private VIaInoutledgerMapper vIaInoutledgerMapper;
-    @Autowired
-    private BdCalbodyMapper bdCalbodyMapper;
-    @Autowired
-    private LinkPriceListMapper linkPriceListMapper;
-    @Autowired
-    private SyncDocMapper syncDocMapper;
-    @Autowired
-    private IPoOrderService poOrderService;
-    @Autowired
-    private IPoOrderBService poOrderBService;
     @Autowired
     private IPrmTariffService prmTariffService;
     @Autowired
     private IPrmTariffcurlistService prmTariffcurlistService;
     @Autowired
     private PkTranslateCodeMapper pkTranslateCodeMapper;
-    @Autowired
-    private IDingtalkUserInfoService dingtalkUserInfoService;
 
+    //@Scheduled(cron = "0 0 2 1 * ? ")
+    //@Scheduled(cron = "0 10 0 1 * ? ")
+    //@Scheduled(cron = "0 0 1 * * ? ")
     @Test
-    public void dingdinguser(){
-        List<DingtalkUserInfo> list = dingtalkUserInfoService.list();
-        for (DingtalkUserInfo dingtalkUserInfo : list) {
-            String zhanghaoxinxi = pkTranslateCodeMapper.zhanghaoxinxi(dingtalkUserInfo.getU8cPhone());
-            dingtalkUserInfo.setU8cUserPk(zhanghaoxinxi);
-            dingtalkUserInfoService.updateById(dingtalkUserInfo);
+    public void JiaMu() {
+        // 获取当前日期
+        LocalDate currentDate = LocalDate.now();
+        // 获取上个月的年月
+        YearMonth lastMonth = YearMonth.from(currentDate.minusMonths(1));
+        // 获取上个月的第一天日期
+        LocalDate firstDayOfLastMonth = lastMonth.atDay(1);
+        // 获取上个月的最后一天日期
+        LocalDate lastDayOfLastMonth = lastMonth.atEndOfMonth();
+        // 格式化日期
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedFirstDay = firstDayOfLastMonth.format(formatter);
+        String formattedLastDay = lastDayOfLastMonth.format(formatter);
 
-
-        }
-    }
-
-    @Test
-    public void CaiGou() {
-
-        //获取前天日期和后天日期yyyy-MM-dd输出
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.DATE, -6);
-        Date time = calendar.getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String qiantian = sdf.format(time);
-        calendar.add(Calendar.DATE, 7);
-        Date time2 = calendar.getTime();
-        String houtian = sdf.format(time2);
-
-        //查询位同步单据
-        List<PoOrder> poOrders = poOrderService.selectUnsync("1010", qiantian, houtian);
-        System.out.println("采购订单数量");
-        System.out.println(poOrders.size());
-        for (PoOrder poOrder : poOrders) {
-            System.out.println("采购订单数据：");
-            System.out.println(poOrder.toString());
-            List<PoOrderB> poOrderBS = poOrderBService.selectByCorderId(poOrder.getCorderid());
-            for (PoOrderB poOrderB : poOrderBS) {
-                System.out.println("采购订单表体数据：");
-                System.out.println(poOrderB.toString());
-            }
-        }
-    }
-
-
-    @Test
-    public void testjiamubiao() {
-        PrmTariff prmTariff = null;
-        String cpricetariffid = null;
-        //先获取价目表
-        prmTariff = prmTariffService.getBy001("1010");
-        //判断by001是否
-        if (prmTariff != null) {
-            //获取价目表ID
-            cpricetariffid = prmTariff.getCpricetariffid();
-        }else {
-            List<PrmTariff> all = prmTariffService.getAll("1010");
-            if (all.isEmpty()) {
-                System.out.println("没有价目表");
-            }else {
-                prmTariff = all.get(0);
-                cpricetariffid = prmTariff.getCpricetariffid();
-            }
-        }
-
-        if (cpricetariffid!=null){
-            /*
-             * pk_invbasdoc 存货档案主键
-             * pk_invmandoc 存货管理档案主键
-             * */
-
-            String shiyongjiagexiang = pkTranslateCodeMapper.shiyongjiagexiang("1010");
-            String cny = pkTranslateCodeMapper.getCNY();
-
-            List<BdInvmandoc> bdInvmandocs = bdInvmandocMapper.selectByPkCorp("1010");
-            for (BdInvmandoc bdInvmandoc : bdInvmandocs) {
-                List<IaBillB> iaBillBS = iaBillBMapper.selectByCinvbasid("1010", bdInvmandoc.getPkInvbasdoc(), "2023-01-01", "2025-01-01");
-                if (!iaBillBS.isEmpty()) {
-                    IaBillB iaBillB = iaBillBS.get(0);
-                    System.out.println("存货编码:" + bdInvmandoc.getInvcode() + "价格:" + iaBillB.getNprice());
-                    if (iaBillB.getNprice()!=null){
-                        PrmTariffcurlist prmTariffcurlist = prmTariffcurlistService.selectByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc());
-                        if (prmTariffcurlist != null) {
-                            System.out.println("已经存在,直接修改数据库");
-                            prmTariffcurlistService.updateByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc(),iaBillB.getNprice().toString());
-                        } else {
-                            System.out.println("不存在,调用接口");
-                            String jiliangdanwei = pkTranslateCodeMapper.jiliangdanwei(bdInvmandoc.getPkMeasdoc());
-                            String json = "{\n" +
-                                    "          \"billvo\":  [\n" +
-                                    "                    {\n" +
-                                    "                              \"childrenvo\":  [\n" +
-                                    "                                        {\n" +
-                                    "                                                  \"cdefpricetypeid\":  \"01\",\n" +
-                                    "                                                  \"cinventoryid\":  \""+bdInvmandoc.getInvcode()+"\",\n" +
-                                    "                                                  \"nprice0\":  \""+iaBillB.getNprice().toString()+"\",\n" +
-                                    "                                                  \"ccurrencyid\":  \"CNY\",\n" +
-                                    "                                                  \"cmeasdocid\":  \""+jiliangdanwei+"\"\n" +
-                                    "                                        }\n" +
-                                    "                              ],\n" +
-                                    "                              \"parentvo\":  {\n" +
-                                    "                                        \"cpricetariffcode\":  \"001\",\n" +
-                                    "                                        \"cpricetariffname\":  \""+prmTariff.getCpricetariffname()+"\",\n" +
-                                    "                                        \"pk_corp\":  \"0101003\"\n" +
-                                    "                              }\n" +
-                                    "                    }\n" +
-                                    "          ]\n" +
-                                    "}";
-                            System.out.println(json);
-                            String tbmimport = this.tbmimport(json);
-                            System.out.println(tbmimport);
-                        }
+        log.info("====价目表定时任务开始====");
+        List<LinkPriceList> list = iLinkPriceListService.list();
+        if (!list.isEmpty()){
+            for (LinkPriceList linkPriceList : list) {
+                String corpPk = linkPriceList.getCorpPk();
+                String corpCode = linkPriceList.getCorpCode();
+                PrmTariff prmTariff = null;
+                String cpricetariffid = null;
+                //先获取价目表
+                prmTariff = prmTariffService.getBy001(corpPk);
+                //判断by001是否
+                if (prmTariff != null) {
+                    //获取价目表ID
+                    cpricetariffid = prmTariff.getCpricetariffid();
+                }else {
+                    List<PrmTariff> all = prmTariffService.getAll(corpPk);
+                    if (all.isEmpty()) {
+                        log.info("公司:{}未创建价目表",corpCode);
+                    }else {
+                        prmTariff = all.get(0);
+                        cpricetariffid = prmTariff.getCpricetariffid();
                     }
+                }
+
+                if (cpricetariffid!=null){
+                    /*
+                     * pk_invbasdoc 存货档案主键
+                     * pk_invmandoc 存货管理档案主键
+                     * */
+
+//                    String shiyongjiagexiang = pkTranslateCodeMapper.shiyongjiagexiang(corpPk);
+//                    String cny = pkTranslateCodeMapper.getCNY();
+
+                    List<BdInvmandoc> bdInvmandocs = bdInvmandocMapper.selectByPkCorp(corpPk);
+                    for (BdInvmandoc bdInvmandoc : bdInvmandocs) {
+                        List<IaBillB> iaBillBS = iaBillBMapper.selectByCinvbasid(corpPk, bdInvmandoc.getPkInvbasdoc(), formattedFirstDay, formattedLastDay);
+                        if (!iaBillBS.isEmpty()) {
+                            IaBillB iaBillB = iaBillBS.get(0);
+
+
+                            if (iaBillB.getNprice()!=null){
+                                PrmTariffcurlist prmTariffcurlist = prmTariffcurlistService.selectByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc());
+                                if (prmTariffcurlist != null) {
+                                    //System.out.println("已经存在,直接修改数据库");
+                                    log.info("存货编码:{},已经存在直接修改数据库,价格:{}",bdInvmandoc.getInvcode(),iaBillB.getNprice());
+
+                                    prmTariffcurlistService.updateByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc(),iaBillB.getNprice().toString());
+                                } else {
+                                    log.info("存货编码:{},调用接口添加价目表,价格:{}",bdInvmandoc.getInvcode(),iaBillB.getNprice());
+                                    //System.out.println("不存在,调用接口");
+                                    String jiliangdanwei = pkTranslateCodeMapper.jiliangdanwei(bdInvmandoc.getPkMeasdoc());
+                                    String json = "{\n" +
+                                            "          \"billvo\":  [\n" +
+                                            "                    {\n" +
+                                            "                              \"childrenvo\":  [\n" +
+                                            "                                        {\n" +
+                                            "                                                  \"cdefpricetypeid\":  \"01\",\n" +
+                                            "                                                  \"cinventoryid\":  \""+bdInvmandoc.getInvcode()+"\",\n" +
+                                            "                                                  \"nprice0\":  \""+iaBillB.getNprice().toString()+"\",\n" +
+                                            "                                                  \"ccurrencyid\":  \"CNY\",\n" +
+                                            "                                                  \"cmeasdocid\":  \""+jiliangdanwei+"\"\n" +
+                                            "                                        }\n" +
+                                            "                              ],\n" +
+                                            "                              \"parentvo\":  {\n" +
+                                            "                                        \"cpricetariffcode\":  \""+prmTariff.getCpricetariffcode()+"\",\n" +
+                                            "                                        \"cpricetariffname\":  \""+prmTariff.getCpricetariffname()+"\",\n" +
+                                            "                                        \"pk_corp\":  \"0101003\"\n" +
+                                            "                              }\n" +
+                                            "                    }\n" +
+                                            "          ]\n" +
+                                            "}";
+                                    //System.out.println(json);
+                                    log.info(json);
+                                    String tbmimport = this.tbmimport(json);
+                                    //System.out.println(tbmimport);
+                                    log.info("u8c,返回数据:{}",tbmimport);
+                                }
+                            }else if (bdInvmandoc.getCostprice()!=null){
+                                //System.out.println("没有订单存货编码:" + bdInvmandoc.getInvcode() + "价格:" + bdInvmandoc.getCostprice());
+                                log.info("存货编码:{}价格:{}",bdInvmandoc.getInvcode(),bdInvmandoc.getCostprice());
+                                PrmTariffcurlist prmTariffcurlist = prmTariffcurlistService.selectByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc());
+                                if (prmTariffcurlist != null) {
+                                    //System.out.println("已经存在,直接修改数据库");
+                                    prmTariffcurlistService.updateByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc(),bdInvmandoc.getCostprice().toString());
+                                } else {
+                                    //System.out.println("不存在,调用接口");
+                                    String jiliangdanwei = pkTranslateCodeMapper.jiliangdanwei(bdInvmandoc.getPkMeasdoc());
+                                    String json = "{\n" +
+                                            "          \"billvo\":  [\n" +
+                                            "                    {\n" +
+                                            "                              \"childrenvo\":  [\n" +
+                                            "                                        {\n" +
+                                            "                                                  \"cdefpricetypeid\":  \"01\",\n" +
+                                            "                                                  \"cinventoryid\":  \""+bdInvmandoc.getInvcode()+"\",\n" +
+                                            "                                                  \"nprice0\":  \""+bdInvmandoc.getCostprice()+"\",\n" +
+                                            "                                                  \"ccurrencyid\":  \"CNY\",\n" +
+                                            "                                                  \"cmeasdocid\":  \""+jiliangdanwei+"\"\n" +
+                                            "                                        }\n" +
+                                            "                              ],\n" +
+                                            "                              \"parentvo\":  {\n" +
+                                            "                                        \"cpricetariffcode\":  \""+prmTariff.getCpricetariffcode()+"\",\n" +
+                                            "                                        \"cpricetariffname\":  \""+prmTariff.getCpricetariffname()+"\",\n" +
+                                            "                                        \"pk_corp\":  \"0101003\"\n" +
+                                            "                              }\n" +
+                                            "                    }\n" +
+                                            "          ]\n" +
+                                            "}";
+                                    log.info(json);
+                                    String tbmimport = this.tbmimport(json);
+                                    //System.out.println(tbmimport);
+                                    log.info("u8c,返回数据:{}",tbmimport);
+                                }
+                            }
 
 
 
-                } else {
-                    if (bdInvmandoc.getCostprice()!=null){
-                        System.out.println("没有订单存货编码:" + bdInvmandoc.getInvcode() + "价格:" + bdInvmandoc.getCostprice());
-                        PrmTariffcurlist prmTariffcurlist = prmTariffcurlistService.selectByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc());
-                        if (prmTariffcurlist != null) {
-                            System.out.println("已经存在,直接修改数据库");
-                            prmTariffcurlistService.updateByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc(),bdInvmandoc.getCostprice().toString());
                         } else {
-                            System.out.println("不存在,调用接口");
-                            String jiliangdanwei = pkTranslateCodeMapper.jiliangdanwei(bdInvmandoc.getPkMeasdoc());
-                            String json = "{\n" +
-                                    "          \"billvo\":  [\n" +
-                                    "                    {\n" +
-                                    "                              \"childrenvo\":  [\n" +
-                                    "                                        {\n" +
-                                    "                                                  \"cdefpricetypeid\":  \"01\",\n" +
-                                    "                                                  \"cinventoryid\":  \""+bdInvmandoc.getInvcode()+"\",\n" +
-                                    "                                                  \"nprice0\":  \""+bdInvmandoc.getCostprice()+"\",\n" +
-                                    "                                                  \"ccurrencyid\":  \"CNY\",\n" +
-                                    "                                                  \"cmeasdocid\":  \""+jiliangdanwei+"\"\n" +
-                                    "                                        }\n" +
-                                    "                              ],\n" +
-                                    "                              \"parentvo\":  {\n" +
-                                    "                                        \"cpricetariffcode\":  \"001\",\n" +
-                                    "                                        \"cpricetariffname\":  \""+prmTariff.getCpricetariffname()+"\",\n" +
-                                    "                                        \"pk_corp\":  \"0101003\"\n" +
-                                    "                              }\n" +
-                                    "                    }\n" +
-                                    "          ]\n" +
-                                    "}";
-                            System.out.println(json);
-                            String tbmimport = this.tbmimport(json);
-                            System.out.println(tbmimport);
+                            if (bdInvmandoc.getCostprice()!=null){
+                                //System.out.println("没有订单存货编码:" + bdInvmandoc.getInvcode() + "价格:" + bdInvmandoc.getCostprice());
+                                log.info("存货编码:{}价格:{}",bdInvmandoc.getInvcode(),bdInvmandoc.getCostprice());
+                                PrmTariffcurlist prmTariffcurlist = prmTariffcurlistService.selectByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc());
+                                if (prmTariffcurlist != null) {
+                                    //System.out.println("已经存在,直接修改数据库");
+                                    prmTariffcurlistService.updateByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc(),bdInvmandoc.getCostprice().toString());
+                                } else {
+                                    //System.out.println("不存在,调用接口");
+                                    String jiliangdanwei = pkTranslateCodeMapper.jiliangdanwei(bdInvmandoc.getPkMeasdoc());
+                                    String json = "{\n" +
+                                            "          \"billvo\":  [\n" +
+                                            "                    {\n" +
+                                            "                              \"childrenvo\":  [\n" +
+                                            "                                        {\n" +
+                                            "                                                  \"cdefpricetypeid\":  \"01\",\n" +
+                                            "                                                  \"cinventoryid\":  \""+bdInvmandoc.getInvcode()+"\",\n" +
+                                            "                                                  \"nprice0\":  \""+bdInvmandoc.getCostprice()+"\",\n" +
+                                            "                                                  \"ccurrencyid\":  \"CNY\",\n" +
+                                            "                                                  \"cmeasdocid\":  \""+jiliangdanwei+"\"\n" +
+                                            "                                        }\n" +
+                                            "                              ],\n" +
+                                            "                              \"parentvo\":  {\n" +
+                                            "                                        \"cpricetariffcode\":  \""+prmTariff.getCpricetariffcode()+"\",\n" +
+                                            "                                        \"cpricetariffname\":  \""+prmTariff.getCpricetariffname()+"\",\n" +
+                                            "                                        \"pk_corp\":  \"0101003\"\n" +
+                                            "                              }\n" +
+                                            "                    }\n" +
+                                            "          ]\n" +
+                                            "}";
+                                    log.info(json);
+                                    String tbmimport = this.tbmimport(json);
+                                    //System.out.println(tbmimport);
+                                    log.info("u8c,返回数据:{}",tbmimport);
+                                }
+                            }
                         }
                     }
                 }
+
+
             }
         }
-
-
+        log.info("价目表定时任务结束");
     }
-
-
-
-
 
     private static String tbmimport(String body){
         // 服务器访问地址及端口,例如 http://ip:port
