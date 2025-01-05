@@ -130,7 +130,7 @@ public class FuKuanJob {
 
                 String hbbm = byVouchid.get(0).getHbbm();
 
-                String jobid = byVouchid.get(0).getJobid();
+                String jobid =  arapDjzb.getZyx2();
 
                 String dfyhzh = byVouchid.get(0).getDfyhzh();
 
@@ -176,7 +176,6 @@ public class FuKuanJob {
 
                     if (jobid != null) {
                         String xiangmu = pkTranslateCodeMapper.xiangmuFukuan(jobid);
-
                         OapiProcessinstanceCreateRequest.FormComponentValueVo xiangmuVo = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
                         formComponentValueVoList.add(xiangmuVo);
                         xiangmuVo.setName("采购项目");
@@ -276,12 +275,12 @@ public class FuKuanJob {
                     OapiProcessinstanceCreateRequest.FormComponentValueVo formComponentValueVo12 = new OapiProcessinstanceCreateRequest.FormComponentValueVo();
                     List<List<OapiProcessinstanceCreateRequest.FormComponentValueVo>> asList =  new ArrayList<>();
                     for (ArapDjfb arapDjfb : byVouchid) {
-                /*订单号	订单号	ddh
-                发票号	发票号	fph
-                摘要	摘要	zy
-                币种	币种	bzbm
+                    /*订单号	订单号	ddh
+                    发票号	发票号	fph
+                    摘要	摘要	zy
+                    币种	币种	bzbm
+                    本币金额	本币金额	bbye*/
 
-                本币金额	本币金额	bbye*/
                         String ddh = arapDjfb.getDdh();
                        // System.out.println("订单号"+ddh);
                         String fph = arapDjfb.getFph();

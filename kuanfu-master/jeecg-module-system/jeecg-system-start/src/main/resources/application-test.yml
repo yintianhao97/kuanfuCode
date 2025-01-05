@@ -162,12 +162,12 @@ spring:
           driver-class-name: com.mysql.cj.jdbc.Driver
           # 多数据源配置
         U8C:
-          url: jdbc:sqlserver://frp-bus.top:56445;DatabaseName=U8C
+          url: jdbc:sqlserver://cn-jn-lt-plustmp1.natfrp.cloud:29245;DatabaseName=U8C
           username: sa
           password: Kf123456
           driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
         EWAY:
-          url: jdbc:sqlserver://frp-bus.top:56445;DatabaseName=EwayU8CLink
+          url: jdbc:sqlserver://cn-jn-lt-plustmp1.natfrp.cloud:29245;DatabaseName=EwayU8CLink
           username: sa
           password: Kf123456
           driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver

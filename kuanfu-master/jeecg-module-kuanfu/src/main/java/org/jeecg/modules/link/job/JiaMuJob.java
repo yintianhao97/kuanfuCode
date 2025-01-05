@@ -61,6 +61,7 @@ public class JiaMuJob {
             for (LinkPriceList linkPriceList : list) {
                 String corpPk = linkPriceList.getCorpPk();
                 String corpCode = linkPriceList.getCorpCode();
+                log.info("公司:{}开始执行",corpCode);
                 PrmTariff prmTariff = null;
                 String cpricetariffid = null;
                 //先获取价目表
@@ -121,7 +122,7 @@ public class JiaMuJob {
                                             "                              \"parentvo\":  {\n" +
                                             "                                        \"cpricetariffcode\":  \""+prmTariff.getCpricetariffcode()+"\",\n" +
                                             "                                        \"cpricetariffname\":  \""+prmTariff.getCpricetariffname()+"\",\n" +
-                                            "                                        \"pk_corp\":  \"0101003\"\n" +
+                                            "                                        \"pk_corp\": \""+corpCode+"\",\n" +
                                             "                              }\n" +
                                             "                    }\n" +
                                             "          ]\n" +
@@ -134,7 +135,7 @@ public class JiaMuJob {
                                 }
                             }else if (bdInvmandoc.getCostprice()!=null){
                                 //System.out.println("没有订单存货编码:" + bdInvmandoc.getInvcode() + "价格:" + bdInvmandoc.getCostprice());
-                                log.info("存货编码:{}价格:{}",bdInvmandoc.getInvcode(),bdInvmandoc.getCostprice());
+                                log.info("没有订单存货编码:{}价格:{}",bdInvmandoc.getInvcode(),bdInvmandoc.getCostprice());
                                 PrmTariffcurlist prmTariffcurlist = prmTariffcurlistService.selectByCinv(cpricetariffid, bdInvmandoc.getPkInvbasdoc());
                                 if (prmTariffcurlist != null) {
                                     //System.out.println("已经存在,直接修改数据库");
@@ -157,7 +158,7 @@ public class JiaMuJob {
                                             "                              \"parentvo\":  {\n" +
                                             "                                        \"cpricetariffcode\":  \""+prmTariff.getCpricetariffcode()+"\",\n" +
                                             "                                        \"cpricetariffname\":  \""+prmTariff.getCpricetariffname()+"\",\n" +
-                                            "                                        \"pk_corp\":  \"0101003\"\n" +
+                                            "                                        \"pk_corp\": \""+corpCode+"\",\n" +
                                             "                              }\n" +
                                             "                    }\n" +
                                             "          ]\n" +
@@ -197,7 +198,7 @@ public class JiaMuJob {
                                             "                              \"parentvo\":  {\n" +
                                             "                                        \"cpricetariffcode\":  \""+prmTariff.getCpricetariffcode()+"\",\n" +
                                             "                                        \"cpricetariffname\":  \""+prmTariff.getCpricetariffname()+"\",\n" +
-                                            "                                        \"pk_corp\":  \"0101003\"\n" +
+                                            "                                        \"pk_corp\": \""+corpCode+"\",\n" +
                                             "                              }\n" +
                                             "                    }\n" +
                                             "          ]\n" +
